@@ -1,23 +1,28 @@
 import math
 import argparse
+
 def check_positive(value):
     i_value = int(value)
     if i_value < 0:
         error_msg()
     return i_value
+    
 parser = argparse.ArgumentParser(description="Credit Calculator")
 parser.add_argument("--type", type=str, help="type of credit")
-parser.add_argument("--principal", type=float, help="credit principal")
-parser.add_argument("--periods", type=int, help="count of periods")
-parser.add_argument("--interest", type=float, help="credit interest")
-parser.add_argument("--payment", type=check_positive, help="monthly payment")
+parser.add_argument("--principal", type=int, help="credit principal", default=0)
+parser.add_argument("--periods", type=int, help="count of periods", default=0)
+parser.add_argument("--interest", type=float, help="credit interest", default=0)
+parser.add_argument("--payment", type=check_positive, help="monthly payment", default=0)
 args = parser.parse_args()
+
 if args.type == None and args.payment == None and args.principal == None and args.periods == None and args.interest == None:
         pass
 elif args.type not in ["diff", "annuity"]:
     print("Incorrect parameters")
+    
 elif args.type == "diff" and args.periods < 0 :
         print ("Incorrect parameters")
+        
 elif args.type == "diff":
     if (args.principal == None) or (args.periods == None) or (args.interest == None):
         print("Incorrect parameters")
@@ -31,39 +36,55 @@ elif args.type == "diff":
         Overpayment = int(sum(differentiated_payments) - args.principal)
         print()
         print("Overpayment = {0}".format(Overpayment))
-elif args.type == "annuity":
-    if (args.principal == None or args.periods == None or args.interest == None) and args.payment == None:
-        print("Incorrect parameters")        
-    elif (args.principal != None) and (args.periods != None) and (args.interest != None):
-        i = args.interest / (12 * 100)
-        annuity_payment = math.ceil(args.principal * (i * math.pow(1 + i, args.periods) / (math.pow(1 + i, args.periods) - 1)))
-        Overpayment = int(annuity_payment * args.periods - args.principal)
-        print("Your annuity payment = {0}!".format(annuity_payment))
-        print("Overpayment = {0}".format(Overpayment))
-    elif args.payment != None and args.periods != None and args.interest != None:
-        i = args.interest / (12 * 100)
-        credit_principal = math.floor(args.payment / (i * math.pow(1 + i, args.periods) / (math.pow(1 + i, args.periods) - 1)))
-        Overpayment = int(args.payment * args.periods - credit_principal)
-        print("Your credit principal = {0}!".format(credit_principal))
-        print("Overpayment = {0}".format(Overpayment))
-    elif args.payment != None and args.principal != None and args.interest != None:
-        i = args.interest / (12 * 100)
-        period_per_month = math.log((args.payment / (args.payment - i * args.principal)), (1 + i))
-        period_per_month = math.ceil(period_per_month)
-        Overpayment = int(args.payment * period_per_month - args.principal)
-        numbers_years = period_per_month // 12
-        number_month = math.floor(((period_per_month / 12) - numbers_years) * 12)
-        if numbers_years > 1 and number_month > 1:
-            print("You need {0} years and {1} months to repay this credit!".format(numbers_years, number_month))
-        elif numbers_years == 1 and number_month == 1:
-            print("You need {0} year and {1} month to repay this credit!".format(numbers_years, number_month))
-        elif numbers_years == 0 and number_month > 1:
-            print("You need {0} months to repay this credit!".format(number_month))
-        elif numbers_years == 0 and number_month == 1:
-            print("You need {0} month to repay this credit!".format(number_month))
-        elif number_month == 0 and numbers_years > 1 :
-            print("You need {0} years to repay this credit!".format(numbers_years))
-        elif number_month == 0 and numbers_years == 1 :
-            print("You need {0} year to repay this credit!".format(numbers_years))
-        print("Overpayment = {0}".format(Overpayment))
         
+elif args.type == 'annuity':
+    if args.principal and args.periods and args.interest:
+        if args.principal < 0 or args.periods < 0 or args.interest < 0:
+            print('Incorrect parameters.')
+        else:
+            i = args.interest / (12 * 100)
+            annuity_payment = math.ceil(args.principal * (i * math.pow(1 + i, args.periods) / (math.pow(1 + i, args.periods) - 1)))
+            Overpayment = (annuity_payment * args.periods - args.principal)
+            print("Your annuity payment = {0}!".format(annuity_payment))
+            print("Overpayment = {0}".format(Overpayment))
+        
+    elif args.payment and args.periods and args.interest:
+        if args.payment < 0 or args.periods < 0 or args.interest < 0:
+            print('Incorrect parameters.')
+        else:
+            i = args.interest / (12 * 100)
+            credit_principal = math.floor(args.payment / (i * math.pow(1 + i, args.periods) / (math.pow(1 + i, args.periods) - 1)))
+            Overpayment = int(args.payment * args.periods - credit_principal)
+            print("Your credit principal = {0}!".format(credit_principal))
+            print("Overpayment = {0}".format(Overpayment))
+         
+    elif args.principal and args.payment and args.interest:
+        if args.principal < 0 or args.payment < 0 or args.interest < 0:
+            print('Incorrect parameters.')
+        else:
+            i = args.interest / (12 * 100)
+            period_per_month = math.log((args.payment / (args.payment - i * args.principal)), (1 + i))
+            period_per_month = math.ceil(period_per_month)
+            Overpayment = int(args.payment * period_per_month - args.principal)
+            numbers_years = period_per_month // 12
+            number_month = math.floor(((period_per_month / 12) - numbers_years) * 12)
+        
+            if numbers_years > 1 and number_month > 1:
+                print("You need {0} years and {1} months to repay this credit!".format(numbers_years, number_month))
+            
+            elif numbers_years == 1 and number_month == 1:
+                print("You need {0} year and {1} month to repay this credit!".format(numbers_years, number_month))
+            
+            elif numbers_years == 0 and number_month > 1:
+                print("You need {0} months to repay this credit!".format(number_month))
+            
+            elif numbers_years == 0 and number_month == 1:
+                print("You need {0} month to repay this credit!".format(number_month))
+            
+            elif number_month == 0 and numbers_years > 1 :
+                print("You need {0} years to repay this credit!".format(numbers_years))
+            
+            elif number_month == 0 and numbers_years == 1 :
+                print("You need {0} year to repay this credit!".format(numbers_years))
+                
+            print("Overpayment = {0}".format(Overpayment))
